@@ -45,6 +45,10 @@ function newDoc() {
   location.href = `editor.html?id=${id}`;
 }
 
+function goHome() {
+  location.href = "home.html";
+}
+
 // ===== EDITOR =====
 const params = new URLSearchParams(location.search);
 const docId = params.get("id");
