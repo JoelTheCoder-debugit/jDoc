@@ -1,7 +1,7 @@
-// ===== SETTINGS =====
-const PASSWORD = "test1!"; // 🔴 CHANGE THIS
+// ========= SETTINGS =========
+const PASSWORD = "changeme"; // 🔴 CHANGE THIS
 
-// ===== LOGIN =====
+// ========= LOGIN =========
 function login() {
   const input = document.getElementById("password").value;
   if (input === PASSWORD) {
@@ -12,29 +12,14 @@ function login() {
   }
 }
 
-// ===== AUTH CHECK =====
+// ========= AUTH CHECK =========
 if (location.pathname.includes("home") || location.pathname.includes("editor")) {
   if (localStorage.getItem("loggedIn") !== "true") {
     location.href = "index.html";
   }
 }
 
-// ===== DOCUMENT LIST =====
-function loadDocs() {
-  const list = document.getElementById("docList");
-  if (!list) return;
-
-  list.innerHTML = "";
-  const docs = JSON.parse(localStorage.getItem("docs") || "{}");
-
-  Object.keys(docs).forEach(id => {
-    const li = document.createElement("li");
-    li.textContent = docs[id].title || "Untitled";
-    li.onclick = () => location.href = `editor.html?id=${id}`;
-    list.appendChild(li);
-  });
-}
-
+// ========= HOME =========
 function newDoc() {
   const docs = JSON.parse(localStorage.getItem("docs") || "{}");
   const id = Date.now().toString();
@@ -45,11 +30,29 @@ function newDoc() {
   location.href = `editor.html?id=${id}`;
 }
 
+function loadDocs() {
+  const grid = document.getElementById("docGrid");
+  if (!grid) return;
+
+  grid.innerHTML = "";
+  const docs = JSON.parse(localStorage.getItem("docs") || "{}");
+
+  Object.keys(docs).forEach(id => {
+    const card = document.createElement("div");
+    card.className = "doc-card";
+    card.innerText = docs[id].title || "Untitled";
+    card.onclick = () => location.href = `editor.html?id=${id}`;
+    grid.appendChild(card);
+  });
+}
+
+loadDocs();
+
+// ========= EDITOR =========
 function goHome() {
   location.href = "home.html";
 }
 
-// ===== EDITOR =====
 const params = new URLSearchParams(location.search);
 const docId = params.get("id");
 
@@ -62,17 +65,23 @@ if (docId) {
     titleInput.value = docs[docId]?.title || "";
     contentInput.value = docs[docId]?.content || "";
 
+    function autoGrow(el) {
+      el.style.height = "auto";
+      el.style.height = el.scrollHeight + "px";
+    }
+
     function save() {
       docs[docId] = {
         title: titleInput.value,
         content: contentInput.value
       };
       localStorage.setItem("docs", JSON.stringify(docs));
+      autoGrow(contentInput);
     }
 
-    titleInput.oninput = save;
-    contentInput.oninput = save;
+    titleInput.addEventListener("input", save);
+    contentInput.addEventListener("input", save);
+
+    autoGrow(contentInput);
   }
 }
-
-loadDocs();
